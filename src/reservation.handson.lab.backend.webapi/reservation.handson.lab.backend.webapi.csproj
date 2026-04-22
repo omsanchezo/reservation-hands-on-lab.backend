@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\reservation.handson.lab.backend.domain\reservation.handson.lab.backend.domain.csproj" />
+    <ProjectReference Include="..\reservation.handson.lab.backend.application\reservation.handson.lab.backend.application.csproj" />
+    <ProjectReference Include="..\reservation.handson.lab.backend.infrastructure\reservation.handson.lab.backend.infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
