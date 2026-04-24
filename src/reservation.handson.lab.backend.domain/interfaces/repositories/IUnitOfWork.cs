@@ -13,7 +13,6 @@ public interface IUnitOfWork : IDisposable
 
     void BeginTransaction();
     void Commit();
-    void Flush();
     void Rollback();
     void ResetTransaction();
     bool IsActiveTransaction();
