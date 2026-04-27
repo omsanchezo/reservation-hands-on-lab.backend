@@ -1,0 +1,103 @@
+schema: dotnet-clean-architecture
+
+context: |
+  Backend API for the reservation / booking hands-on lab — a learning sandbox
+  used to exercise the APSYS .NET Clean Architecture workflow end-to-end through
+  OpenSpec. Domain centers on customers, reservable resources, and the bookings
+  that connect them.
+
+  Status: early-bootstrap. The solution skeleton, the Domain base abstractions
+  (AbstractDomainObject, IRepository, IUnitOfWork, GetManyAndCountResult,
+  domain exceptions) and the four test projects exist. Application, Infrastructure
+  and WebApi (currently a Hello World minimal API) have no feature code yet.
+  No migrations project exists yet — it is added when the first migration task lands.
+
+  .NET 9.0 Clean Architecture backend. C# 13.
+  Intended stack (wired in per-feature, not preloaded):
+    NHibernate 5.5, FastEndpoints 7.0, FluentValidation 12.x,
+    AutoMapper 15, FluentMigrator 7.1, FluentResults
+  Testing (already wired): NUnit 4, FluentAssertions 8, AutoFixture.AutoMoq,
+                           Castle.Core, Microsoft.AspNetCore.Mvc.Testing, Coverlet
+  DB: PostgreSQL (Npgsql) — schema name TBD when Infrastructure is wired.
+  Auth: not wired yet — added per-feature when authentication enters scope.
+
+  Project structure:
+  - src/reservation.handson.lab.backend.domain/ — entities, validators, DAOs,
+    exceptions, repository interfaces (UoW)
+  - src/reservation.handson.lab.backend.application/ — use cases (Command + Handler
+    per operation) — empty
+  - src/reservation.handson.lab.backend.infrastructure/ — NHibernate mappers,
+    repositories, UoW — empty
+  - src/reservation.handson.lab.backend.webapi/ — FastEndpoints, DTOs, AutoMapper
+    profiles — Hello World only
+
+  Planned domain features (kebab-case; will be filled in as proposals are accepted —
+  until then, OpenSpec proposals SHOULD propose names from this list or extend it
+  via a new proposal):
+  - customer-management — customers who can hold reservations (contact info,
+    status). No fiscal data at this stage.
+  - reservable-resources — assets that can be booked (rooms, tables, equipment)
+    with capacity and availability windows.
+  - reservation-booking — the reservation aggregate itself: links a customer to
+    a resource over a time range, transitions through booking lifecycle states
+    (pending / confirmed / cancelled / completed).
+  - scheduling — opening hours, blackout periods, and availability rules per
+    resource.
+
+  Domain exceptions already in place (`domain/exceptions/`):
+  - InvalidDomainException — business rule violations
+  - DuplicatedDomainException — uniqueness constraint violations
+  - ResourceNotFoundException — entity not found
+
+  DAOs (read models with GetManyAndCount): none yet — added per feature, named
+  `{Entity}Dao` and surfaced via dedicated DB views when the feature requires
+  paginated queries.
+
+git:
+  base_branch: master
+  branch_prefix: feature/
+  instructions: |
+    Each change is implemented in its own feature branch created from `master`.
+    Branch name format: feature/{change-name} (e.g., feature/customer-management).
+    Before starting implementation, check if the branch already exists. If it
+    does not, create it from `master` and switch to it.
+    Use `github-personal` MCP server for PRs, issues and reviews against
+    omsanchezo/reservation-hands-on-lab.backend.
+
+rules:
+  proposal:
+    - Describe business concepts in natural language (no technical notation)
+    - Describe functional scope in user terms (no CRUD tables, no layer wording)
+    - Feature Impact names must be kebab-case and grouped by domain feature
+      (e.g., customer-management, reservation-booking) — never grouped by layer
+    - When adding a feature not listed in the planned domain features, the
+      proposal MUST justify the new feature name and the OpenSpec config SHOULD
+      be updated to include it
+  specs:
+    - Spec folder names must match domain features (e.g., specs/reservation-booking/spec.md)
+    - Use sub-specs for complex features (e.g., specs/reservation-booking/lifecycle/spec.md)
+    - Cross-cutting concerns use a descriptive prefix folder (e.g., specs/scheduling/spec.md)
+    - Behavior only — `SHALL` / `MUST` requirements; no NHibernate, AutoMapper,
+      transactions, or DAO references in spec text
+    - Every operation has happy-path + validation + not-found + duplicate scenarios
+    - Validation rules are explicit requirements (not implementation hints)
+  design:
+    - Only required when there are cross-cutting concerns or non-trivial decisions
+    - Document NHibernate mapping strategy (cascade, lazy loading decisions)
+    - Document endpoint routes (RESTful conventions) and request/response shape
+    - Document migration strategy (reversibility, NOT NULL three-step pattern)
+    - Document DAO view SQL for entities exposed through GetManyAndCount
+    - Document domain → HTTP error mapping when new exception types are introduced
+  tasks:
+    - Strictly order by layer dependency:
+      migrations → domain → repositories → infrastructure → application → webapi → tests
+    - Each task references exactly one `dca-*` skill
+      (dca-create-domain, dca-create-migration, dca-create-repository,
+       dca-create-infrastructure, dca-create-use-case, dca-create-endpoint,
+       dca-create-tests)
+    - Tasks must be atomic (completable in one session)
+    - Do not duplicate skill content into the task entry — reference the skill,
+      do not inline its instructions
+    - Include view migrations for entities that expose a DAO with GetManyAndCount
+    - The first feature to land must also add the `migrations` project
+      (FluentMigrator) — subsequent features only add migration files
