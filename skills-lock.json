@@ -1,0 +1,50 @@
+{
+  "dotnet-clean-architecture/create-domain": {
+    "source": "apsys-mx/apsys-ai-toolkit",
+    "sourceType": "github",
+    "computedHash": "50efc310ec8eb57d592d6d20673cad6b62016fc93ca8f8bf5e6fcb42f304c126",
+    "mode": "copy"
+  },
+  "dotnet-clean-architecture/create-endpoint": {
+    "source": "apsys-mx/apsys-ai-toolkit",
+    "sourceType": "github",
+    "computedHash": "1c6ad2918dbff551435d3928b8706f2d3ebf37a0a16dd29d79850642cdef0aa4",
+    "mode": "copy"
+  },
+  "dotnet-clean-architecture/create-infrastructure": {
+    "source": "apsys-mx/apsys-ai-toolkit",
+    "sourceType": "github",
+    "computedHash": "cbbf01b6dc4700cc4972253cc2c98e6107f42d0d2fb16807bb0a363bace42f19",
+    "mode": "copy"
+  },
+  "dotnet-clean-architecture/create-migration": {
+    "source": "apsys-mx/apsys-ai-toolkit",
+    "sourceType": "github",
+    "computedHash": "4636e4375bc6b4301e68855fb0a28fc6b56da2fc8480ee645ad89b78682e263c",
+    "mode": "copy"
+  },
+  "dotnet-clean-architecture/create-repository": {
+    "source": "apsys-mx/apsys-ai-toolkit",
+    "sourceType": "github",
+    "computedHash": "f30d1abab4757350a916491ba03c647b161501dba0df8677d54506edf2929a18",
+    "mode": "copy"
+  },
+  "dotnet-clean-architecture/create-tests": {
+    "source": "apsys-mx/apsys-ai-toolkit",
+    "sourceType": "github",
+    "computedHash": "d9c4bbf1b53253ddcdc686d61ddd1b5889377ac9e68459afd63beb9857acbf8f",
+    "mode": "copy"
+  },
+  "dotnet-clean-architecture/create-use-case": {
+    "source": "apsys-mx/apsys-ai-toolkit",
+    "sourceType": "github",
+    "computedHash": "e146496caa1f42baf22fadd20759e1e9e72a7c9a4dd68775773cbf149ef172f1",
+    "mode": "copy"
+  },
+  "dotnet-clean-architecture/review-pr-code": {
+    "source": "apsys-mx/apsys-ai-toolkit",
+    "sourceType": "github",
+    "computedHash": "7e96b5732039bbb1b0c5fe40e1e7130070ee18422c0f436195853b78e5ebbac5",
+    "mode": "copy"
+  }
+}

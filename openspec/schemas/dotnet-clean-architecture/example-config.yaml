@@ -1,0 +1,53 @@
+# Copy this file to openspec/config.yaml in your project root.
+# Then run: openspec init
+#
+# OpenSpec supports 3 fields:
+#   schema  (required) — which schema to use
+#   context (optional, max 50KB) — project context injected into all artifact instructions
+#   rules   (optional) — per-artifact guidance as map of artifact ID → array of strings
+
+schema: dotnet-clean-architecture
+
+context: |
+  .NET 9.0 Clean Architecture backend.
+  Stack: NHibernate 5.5, FastEndpoints 7.0, FluentValidation 12.0,
+         AutoMapper 15.0, FluentMigrator 7.1, FluentResults
+  Testing: NUnit, FluentAssertions, AutoFixture, Moq
+  DB: PostgreSQL with schema-per-module
+
+  Project structure:
+  - src/{Project}.Domain/ — entities, validators, DAOs, exceptions, interfaces
+  - src/{Project}.Application/ — use cases (Command + Handler per operation)
+  - src/{Project}.Infrastructure/ — NHibernate mappers, repositories, UoW
+  - src/{Project}.WebApi/ — FastEndpoints, DTOs, AutoMapper profiles
+  - src/{Project}.Migrations/ — FluentMigrator migration classes
+
+  Domain features:
+  - invoices — invoice lifecycle (issuance, cancellation, document management)
+  - customers — customer profiles with contacts and fiscal data
+  - sales — sales orders, payment plans, document attachments
+  - received-payments — payment receipts and complement issuance
+  - folios — organizational folders with labels
+  - users — user management, roles, access control
+  - shared-auth — authentication and authorization (cross-cutting)
+
+rules:
+  proposal:
+    - Describe business concepts in natural language (no technical notation)
+    - Describe functional scope in user terms (no CRUD tables)
+    - Feature Impact names must match domain features listed above
+  specs:
+    - Spec folder names must match domain features (e.g., specs/invoices/spec.md)
+    - Use sub-specs for complex features (e.g., specs/invoices/issuance/spec.md)
+    - Cross-cutting concerns use shared- prefix (e.g., specs/shared-auth/spec.md)
+    - Tag requirements with architecture layer
+    - Include validation rules as explicit requirements
+    - Include error scenarios (not-found, duplicate, invalid) per operation
+  design:
+    - Document NHibernate mapping strategy
+    - Document endpoint routes (RESTful conventions)
+    - Document migration strategy (reversibility)
+  tasks:
+    - Order by layer dependency (migrations → domain → infra → app → webapi → tests)
+    - Each task references one apsys skill
+    - Tasks must be atomic (completable in one session)

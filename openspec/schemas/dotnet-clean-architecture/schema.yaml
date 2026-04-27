@@ -1,0 +1,192 @@
+name: dotnet-clean-architecture
+version: 1
+description: >-
+  Clean Architecture .NET backend workflow. Proposal includes domain modeling,
+  specs organized by domain feature with architecture layer tagging, design covers NHibernate/FastEndpoints
+  decisions, tasks ordered by layer dependency referencing apsys skills.
+
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: Business motivation, functional scope, and feature capabilities
+    template: proposal.md
+    instruction: |
+      Create the proposal focusing on WHY this change matters and WHAT it accomplishes
+      from a business perspective. Write in language a stakeholder can validate.
+
+      Required sections:
+      - **Why**: Problem or opportunity. What business need drives this?
+      - **What Changes**: High-level description of what is being added, modified, or removed.
+      - **Business Concepts**: Describe the domain in natural language.
+        "A customer has contacts and fiscal information. Each customer belongs
+        to an organization." Do NOT use technical notation (1:N, value objects, etc.).
+      - **Functional Scope**: What can the user DO after this change?
+        "Users can register new customers, search the customer list by name or RFC,
+        view customer details with contact history, and update fiscal data."
+        Do NOT use CRUD verbs or operation tables.
+      - **Feature Impact**: List features being added, modified, or removed.
+        Each new feature creates a `specs/<name>/spec.md` file.
+        Use kebab-case names matching domain features as they appear in the codebase
+        (use case groups in Application, feature folders in WebApi).
+        Group by feature, not by layer (e.g., `customer-management`, not `customer-entity`).
+        Organize as: New Features, Modified Features, Removed Features.
+      - **Impact**: What areas of the system are affected (business-level).
+
+      Before writing, explore the codebase to understand existing features and
+      naming conventions, but keep the proposal itself free of technical details.
+    requires: []
+
+  - id: specs
+    generates: "specs/**/*.md"
+    description: Observable behavior requirements organized by domain feature
+    template: spec.md
+    instruction: |
+      Create specs following OpenSpec delta format (ADDED/MODIFIED/REMOVED/RENAMED).
+      Specs describe WHAT the system does (observable behavior), not HOW it is built.
+      Every requirement should be verifiable — if you cannot write a test for it,
+      it does not belong in specs.
+
+      **Feature-based organization**: Spec folder names map to domain features — the
+      business concepts that appear as use case groups in the Application layer
+      (`usecases/{feature}/`) and feature folders in WebApi (`features/{feature}/`).
+
+      - Name each spec folder after its domain feature using kebab-case:
+        `specs/invoices/spec.md`, `specs/user-management/spec.md`
+      - One spec file per feature for simple features (single entity, standard CRUD)
+      - Sub-specs for complex features with distinct sub-workflows:
+        `specs/invoices/issuance/spec.md`, `specs/invoices/cancellation/spec.md`
+      - Cross-cutting specs use a `shared-` prefix:
+        `specs/shared-auth/spec.md`, `specs/shared-notifications/spec.md`
+      - Feature names should match the names declared in the proposal's Feature Impact
+        section. If the project config lists concrete features, use those names.
+
+      Write each requirement as observable behavior using SHALL/MUST.
+      Do NOT include implementation details — no NHibernate mappings,
+      no transaction boundaries, no repository operations, no DAO/view definitions.
+      Those decisions belong in the Design document.
+
+      **Error scenarios**: Include error scenarios as explicit requirements.
+      Every operation should have at minimum:
+      - Happy path scenario
+      - Validation failure scenario (400)
+      - Not-found scenario (404) for Get/Update/Delete
+      - Duplicate scenario (409) for Create/Update when uniqueness applies
+
+      **Scenario format** (Gherkin-inspired):
+      ```
+      #### Scenario: <name>
+      - **GIVEN** <precondition or initial context> (optional — omit if obvious)
+      - **WHEN** <action or event>
+      - **THEN** <expected observable outcome>
+      ```
+
+      Each scenario maps directly to a test case (unit, integration, or e2e).
+      Write them concrete enough that a tester or automation tool can verify them.
+    requires: [proposal]
+
+  - id: design
+    generates: design.md
+    description: Architectural decisions with rationale — the WHY behind HOW
+    template: design.md
+    instruction: |
+      The Design captures architectural decisions and their rationale — choices
+      that are NOT visible in the final code. For each decision, document WHAT
+      was chosen, WHY it was chosen over alternatives, and what RISKS exist.
+
+      Before writing:
+      1. Explore existing entities and features in the codebase to understand
+         how similar problems were solved before.
+      2. Identify which `src/{Project}.*` projects exist to confirm the layer structure.
+      3. Check existing patterns (base classes, naming conventions, relationships)
+         to decide whether to follow or diverge from them.
+
+      **Required sections:**
+
+      - **Context**: Background, current state, constraints. What exists today
+        that this change builds on or modifies?
+      - **Goals / Non-Goals**: What this design achieves and what it explicitly excludes.
+      - **Domain Model**: Entity names, relationships (1:N, N:M), value objects.
+        Use a simple text diagram.
+      - **Operations Scope**: For each entity, which operations are needed?
+        (Create, Get, GetManyAndCount, Update, Delete) in a table.
+
+      **Decision sections** — for each, document the choice AND the rationale:
+
+      - **Database Design**: What tables/columns are needed? New tables or alterations?
+        If altering existing tables with required columns, decide on migration strategy.
+      - **NHibernate Strategy**: What relationship types, cascade behavior, and lazy loading
+        decisions? Why these choices for this specific feature?
+      - **Read Model Design** (if entities have GetManyAndCount): What fields does the DAO
+        expose? What view joins are needed? What fields compose SearchAll?
+      - **Endpoint Design**: What routes and contracts? How do domain errors map to HTTP status codes?
+      - **Error Handling Strategy**: Does this feature follow the standard error flow,
+        or does it need a different approach? Why?
+
+      **Cross-cutting decisions** (include only when applicable):
+
+      - **Domain Events**: Does this feature need events? Synchronous or via outbox?
+      - **Date/Time Handling**: Are there timezone considerations? UTC storage decisions?
+      - **Transaction Isolation**: Are there concurrency risks that require specific isolation levels?
+
+      **Closing sections:**
+
+      - **Risks / Trade-offs**: Known limitations with mitigations.
+      - **Migration Plan**: Deploy steps, rollback strategy (if applicable).
+      - **Open Questions**: Unresolved decisions or unknowns to clarify before coding.
+
+      **When to create this document**:
+      Only create if the change involves cross-cutting concerns, introduces new patterns,
+      has database design decisions, or involves ambiguity about implementation approach.
+      Simple CRUD features with straightforward mappings may skip design entirely.
+    requires: [proposal]
+
+  - id: tasks
+    generates: tasks.md
+    description: Implementation tasks ordered by layer dependency with skill references
+    template: tasks.md
+    instruction: |
+      Create tasks grouped by Clean Architecture layer in dependency order.
+      Each task references the skill that will be loaded to execute it.
+      The skill brings its own implementation guides — do NOT repeat
+      implementation details here.
+
+      **Required order** (lower layers must exist before upper layers):
+
+      1. **Migrations** — Database tables and views first (skill: `create-migration`)
+      2. **Domain** — Entities, validators, exceptions, DAOs (skill: `create-domain`)
+      3. **Repositories** — Mappers, repositories, UoW (skill: `create-repository`)
+      4. **Infrastructure Services** — DI, HTTP clients, caching (skill: `create-infrastructure`)
+      5. **Application** — Use cases per operation (skill: `create-use-case`)
+      6. **WebApi** — Endpoints, DTOs, profiles (skill: `create-endpoint`)
+      7. **Tests** — Per-layer tests (skill: `create-tests`)
+
+      **Task format**:
+      ```
+      - [ ] <action> <entity/component> (skill: `<skill-name>`)
+      ```
+      - Start with the action: "Create...", "Implement...", "Add..."
+      - Include the entity or component name
+      - Reference specs for WHAT to build, design for HOW to build it
+      - Each task = one skill invocation. Keep tasks atomic.
+      - One entity's full CRUD across a layer is one task, not one per operation.
+    requires: [specs, design]
+
+apply:
+  requires: [tasks]
+  tracks: tasks.md
+  instruction: |
+    Execute tasks in layer-dependency order. For each task:
+
+    1. Load the skill referenced in the task (e.g., `create-migration`).
+       The skill contains implementation guides in its references/ folder.
+    2. Use specs to understand WHAT to build (observable behavior).
+    3. Use design to understand HOW to build it (architectural decisions).
+    4. Execute the task following the skill's workflow.
+    5. Mark the task checkbox in tasks.md when complete.
+
+    Important:
+    - Do NOT skip layers or reorder tasks — layer dependencies are strict
+    - If a task is blocked (e.g., missing information in specs or design),
+      pause and ask the developer rather than guessing
+    - After all tasks, run the `review-pr-code` skill to validate
+      the implementation against the specs
